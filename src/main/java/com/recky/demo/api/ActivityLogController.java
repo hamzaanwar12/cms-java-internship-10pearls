@@ -1,0 +1,109 @@
+package com.recky.demo.api;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.recky.demo.dto.ActivityLogDTO;
+import com.recky.demo.service.ActivityLogService;
+import com.recky.demo.util.ApiResponse;
+
+@RestController
+@RequestMapping("/api/activity-logs")
+public class ActivityLogController {
+
+    private final ActivityLogService activityLogService;
+
+    @Autowired
+    public ActivityLogController(ActivityLogService activityLogService) {
+        this.activityLogService = activityLogService;
+    }
+
+    // Endpoint to log an activity
+    @PostMapping
+    public ResponseEntity<ApiResponse<ActivityLogDTO>> logActivity(@RequestParam Long userId,
+            @RequestParam String action,
+            @RequestParam(required = false) Long performedBy,
+            @RequestParam(required = false) String details) {
+        try {
+            ActivityLogDTO activityLogDTO = activityLogService.logActivity(userId, action, performedBy, details);
+            ApiResponse<ActivityLogDTO> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(), "success", "Activity logged successfully", activityLogDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            ApiResponse<ActivityLogDTO> response = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while logging activity",
+                    null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Get logs by userId
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserId(@PathVariable Long userId) {
+        try {
+            List<ActivityLogDTO> logs = activityLogService.getLogsByUserId(userId);
+            if (logs.isEmpty()) {
+                ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                        HttpStatus.NOT_FOUND.value(), "error", "No logs found for the given user", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.OK.value(), "success", "Logs retrieved successfully", logs);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while retrieving logs", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Get logs by performedBy
+    @GetMapping("/performed-by/{performedBy}")
+    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByPerformedBy(@PathVariable Long performedBy) {
+        try {
+            List<ActivityLogDTO> logs = activityLogService.getLogsByPerformedBy(performedBy);
+            if (logs.isEmpty()) {
+                ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                        HttpStatus.NOT_FOUND.value(), "error", "No logs found for the given performer", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.OK.value(), "success", "Logs retrieved successfully", logs);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while retrieving logs", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Get logs by userId and action
+    @GetMapping("/user/{userId}/action/{action}")
+    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserIdAndAction(@PathVariable Long userId,
+            @PathVariable String action) {
+        try {
+            List<ActivityLogDTO> logs = activityLogService.getLogsByUserIdAndAction(userId, action);
+            if (logs.isEmpty()) {
+                ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                        HttpStatus.NOT_FOUND.value(), "error", "No logs found for the given user and action", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.OK.value(), "success", "Logs retrieved successfully", logs);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while retrieving logs", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+}
