@@ -28,7 +28,7 @@ public class Contact {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "phone", nullable = false)
+    @Column(name = "phone", nullable = false, unique = true)
     private String phone;
 
     @Column(name = "email", nullable = true)

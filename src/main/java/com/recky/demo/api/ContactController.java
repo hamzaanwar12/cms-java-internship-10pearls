@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,12 +34,53 @@ public class ContactController {
     /**
      * Create or update a contact.
      */
-    @PostMapping
-    public ResponseEntity<ApiResponse<Contact>> saveContact(@RequestBody Contact contact) {
-        Contact savedContact = contactService.saveContact(contact);
-        return ResponseEntity
-                .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact saved successfully", savedContact));
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<Contact>> createContact(@RequestBody Contact contact) {
+        try {
+            // Check if a contact with the same phone number already exists
+            if (contactService.existsByPhone(contact.getPhone())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse<>(HttpStatus.CONFLICT.value(), "error", "Contact with this phone number already exists", null));
+            }
+            // Save the new contact
+            Contact savedContact = contactService.saveContact(contact);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(HttpStatus.CREATED.value(), "success", "Contact created successfully", savedContact));
+        } catch (Exception e) {
+            // Handle unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while creating the contact", null));
+        }
     }
+
+
+    @PutMapping("/update/{id}")
+public ResponseEntity<ApiResponse<Contact>> updateContact(@PathVariable Long id, @RequestBody Contact contact) {
+    try {
+        // Check if the contact to update exists
+        Optional<Contact> existingContact = contactService.findById(id);
+        if (!existingContact.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "Contact not found", null));
+        }
+        // Check if the new phone number is already in use by another contact
+        if (contactService.existsByPhoneAndIdNot(contact.getPhone(), id)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<>(HttpStatus.CONFLICT.value(), "error", "Another contact with this phone number already exists", null));
+        }
+        // Update the contact
+        contact.setId(id);
+        Contact updatedContact = contactService.saveContact(contact);
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact updated successfully", updatedContact));
+    } catch (Exception e) {
+        // Handle unexpected errors
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while updating the contact", null));
+    }
+}
+
+
 
     /**
      * Get a specific contact by ID.
@@ -136,4 +178,22 @@ public class ContactController {
         return ResponseEntity
                 .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact deleted successfully", null));
     }
+
+    /**
+     * Get a contact by user ID and contact ID
+     */
+    @GetMapping("/user/{userId}/contact/{contactId}")
+    public ResponseEntity<ApiResponse<Optional<Contact>>> getContactByUserIdAndContactId(
+            @PathVariable Long userId,
+            @PathVariable Long contactId) {
+
+        Optional<Contact> contact = contactService.getContactByUserIdAndContactId(userId, contactId);
+        if (contact.isPresent()) {
+            return ResponseEntity
+                    .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact fetched successfully", contact));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "Contact not found", null));
+    }
+
 }

@@ -18,9 +18,20 @@ public class ContactService {
     @Autowired
     private ContactRepository contactRepository;
 
-    // Create or Update a contact
+    public boolean existsByPhone(String phone) {
+        return contactRepository.existsByPhone(phone);
+    }
+
+    public boolean existsByPhoneAndIdNot(String phone, Long id) {
+        return contactRepository.existsByPhoneAndIdNot(phone, id);
+    }
+
     public Contact saveContact(Contact contact) {
         return contactRepository.save(contact);
+    }
+
+    public Optional<Contact> findById(Long id) {
+        return contactRepository.findById(id);
     }
 
     // Get a contact by ID
@@ -38,6 +49,10 @@ public class ContactService {
         return contactRepository.findByUserIdAndId(userId, contactId);
     }
 
+    public Optional<Contact> getContactByUserIdAndContactId(Long userId, Long contactId) {
+        return contactRepository.findByUserIdAndContactId(userId, contactId);
+    }
+    
     // Get a contact by phone
     // public Optional<Contact> getContactByPhone(String phone) {
     // return contactRepository.findByPhone(phone);

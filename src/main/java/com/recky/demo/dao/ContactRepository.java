@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.recky.demo.model.Contact;
@@ -41,5 +43,12 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     // Paginated query for contacts by userId
     Page<Contact> findByUserId(Long userId, Pageable pageable);
+
+    boolean existsByPhone(String phone);
+
+    boolean existsByPhoneAndIdNot(String phone, Long id);
+
+    @Query("SELECT c FROM Contact c WHERE c.user.id = :userId AND c.id = :contactId")
+    Optional<Contact> findByUserIdAndContactId(@Param("userId") Long userId, @Param("contactId") Long contactId);
 
 }
