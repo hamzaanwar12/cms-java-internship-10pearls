@@ -1,19 +1,27 @@
 package com.recky.demo.api;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.recky.demo.model.Contact;
 import com.recky.demo.service.ContactService;
+import com.recky.demo.util.ApiResponse;
 
 @RestController
 @RequestMapping("/api/contacts")
@@ -22,27 +30,110 @@ public class ContactController {
     @Autowired
     private ContactService contactService;
 
-    // Create or Update a contact
+    /**
+     * Create or update a contact.
+     */
     @PostMapping
-    public Contact createContact(@RequestBody Contact contact) {
-        return contactService.saveContact(contact);
+    public ResponseEntity<ApiResponse<Contact>> saveContact(@RequestBody Contact contact) {
+        Contact savedContact = contactService.saveContact(contact);
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact saved successfully", savedContact));
     }
 
-    // Get a contact by ID
+    /**
+     * Get a specific contact by ID.
+     */
     @GetMapping("/{id}")
-    public Optional<Contact> getContactById(@PathVariable Long id) {
-        return contactService.getContactById(id);
+    public ResponseEntity<ApiResponse<Optional<Contact>>> getContactById(@PathVariable Long id) {
+        Optional<Contact> contact = contactService.getContactById(id);
+        if (contact.isPresent()) {
+            return ResponseEntity
+                    .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact fetched successfully", contact));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "Contact not found", null));
     }
 
-    // Get all contacts for a specific user
+    /**
+     * Get all contacts for a user, with optional email and phone filters.
+     */
     @GetMapping("/user/{userId}")
-    public List<Contact> getContactsByUserId(@PathVariable Long userId) {
-        return contactService.getContactsByUserId(userId);
+    public ResponseEntity<ApiResponse<List<Contact>>> getContactsByUserId(
+            @PathVariable Long userId,
+            @RequestParam Optional<String> email,
+            @RequestParam Optional<String> phone) {
+
+        List<Contact> contacts = contactService.getContactsByUserIdWithFilters(userId, email, phone);
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts));
     }
 
-    // Delete a contact
+    /**
+     * Get all contacts created within a specific date range for a user.
+     */
+    @GetMapping("/user/{userId}/date-range")
+    public ResponseEntity<ApiResponse<List<Contact>>> getContactsByDateRange(
+            @PathVariable Long userId,
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+
+        LocalDateTime startDate = LocalDate.parse(startDateStr).atStartOfDay();
+        LocalDateTime endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
+
+        List<Contact> contacts = contactService.getContactsByDateRange(userId, startDate, endDate);
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts));
+    }
+
+    /**
+     * Get paginated contacts for a user.
+     */
+    @GetMapping("/user/{userId}/paginated")
+    public ResponseEntity<ApiResponse<Page<Contact>>> getPaginatedContacts(
+            @PathVariable Long userId,
+            Pageable pageable) {
+
+        Page<Contact> contacts = contactService.getContactsByUserIdPaginated(userId, pageable);
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts,
+                        contacts.getTotalPages(), contacts.getNumber(), (int) contacts.getTotalElements()));
+    }
+
+    /**
+     * Get a contact by phone.
+     */
+    @GetMapping("/phone/{phone}")
+    public ResponseEntity<ApiResponse<List<Contact>>> getContactsByPhone(@PathVariable String phone) {
+        List<Contact> contacts = contactService.getContactsByPhone(phone);
+        if (!contacts.isEmpty()) {
+            return ResponseEntity
+                    .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "No contacts found", null));
+    }
+
+    /**
+     * Get contacts by email
+     */
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ApiResponse<List<Contact>>> getContactsByEmail(@PathVariable String email) {
+        List<Contact> contacts = contactService.getContactsByEmail(email);
+        if (!contacts.isEmpty()) {
+            return ResponseEntity
+                    .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "No contacts found", null));
+    }
+
+    /**
+     * Delete a contact by ID.
+     */
     @DeleteMapping("/{id}")
-    public void deleteContact(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteContact(@PathVariable Long id) {
         contactService.deleteContact(id);
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact deleted successfully", null));
     }
 }

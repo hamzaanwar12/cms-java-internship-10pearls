@@ -1,54 +1,29 @@
-package com.recky.demo.model;
+package com.recky.demo.dto;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "contacts")
-public class Contact {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ContactDTO {
     private Long id;
-
-    @Column(name = "name", nullable = false)
+    private Long userId;
     private String name;
-
-    @Column(name = "phone", nullable = false)
     private String phone;
-
-    @Column(name = "email", nullable = true)
     private String email;
-
-    @Column(name = "address", columnDefinition = "TEXT", nullable = true)
     private String address;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @JsonIgnore // Prevent recursive serialization
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    // Constructors
+    public ContactDTO(Long id, Long userId, String name, String phone, String email, String address, 
+                      LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     // Getters and Setters
     public Long getId() {
@@ -57,6 +32,14 @@ public class Contact {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -107,25 +90,17 @@ public class Contact {
         this.updatedAt = updatedAt;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     @Override
     public String toString() {
-        return "Contact{" +
+        return "ContactDTO{" +
                 "id=" + id +
+                ", userId=" + userId +
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", user=" + (user != null ? user.getId() : null) +
                 '}';
     }
 }
