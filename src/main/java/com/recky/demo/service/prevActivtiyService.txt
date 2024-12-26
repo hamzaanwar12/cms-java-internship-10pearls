@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.recky.demo.api.ContactController;
 import com.recky.demo.dao.ActivityLogRepository;
 import com.recky.demo.dto.ActivityLogDTO;
 import com.recky.demo.model.ActivityLog;
-import com.recky.demo.model.User;
 
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -19,43 +19,34 @@ import org.slf4j.LoggerFactory;
 public class ActivityLogService {
 
     private final ActivityLogRepository activityLogRepository;
-    private final UserService userService; // Assuming you have a service to fetch User
 
     private static final Logger logger = LoggerFactory.getLogger(ActivityLogService.class);
 
     @Autowired
-    public ActivityLogService(ActivityLogRepository activityLogRepository, UserService userService) {
+    public ActivityLogService(ActivityLogRepository activityLogRepository) {
         this.activityLogRepository = activityLogRepository;
-        this.userService = userService;
     }
 
     public ActivityLogDTO logActivity(Long userId, String action, Long performedBy, String details) {
         try {
+
+            logger.info("idhr hain");
+            logger.info("idhr hain");
+            logger.info(
+                    "Logging activity for user: " + userId + ", action: " + action + ", performed by: " + performedBy);
+            logger.info("idhr hain");
+            logger.info("idhr hain");
             if (userId == null) {
                 throw new IllegalArgumentException("userId cannot be null");
             }
-
-            User user = userService.getUserByIdOrThrow(userId);
-            if (user == null) {
-                logger.error("User not found with userId: {}", userId);
-                throw new IllegalArgumentException("User not found with userId: " + userId);
-            }
-            logger.info("User found with userId: {}", userId);
-
-            ActivityLog.Action actionEnum;
-            try {
-                actionEnum = ActivityLog.Action.valueOf(action.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                logger.error("Invalid action provided: {}", action, e);
-                throw new IllegalArgumentException("Invalid action provided: " + action, e);
-            }
-
-            ActivityLog activityLog = new ActivityLog(user, actionEnum, performedBy, details);
+            // Convert string action to Action enum
+            ActivityLog.Action actionEnum = ActivityLog.Action.valueOf(action.toUpperCase());
+            ActivityLog activityLog = new ActivityLog(userId, actionEnum, performedBy, details);
             ActivityLog savedLog = activityLogRepository.save(activityLog);
-
             return mapToDTO(savedLog);
         } catch (Exception e) {
-            logger.error("Error logging activity for userId: {}, action: {}, details: {}", userId, action, details, e);
+            // Log the error and handle appropriately
+            logger.error("Error logging activity: ", e.getMessage());
             throw new RuntimeException("An error occurred while logging the activity", e);
         }
     }
@@ -74,23 +65,19 @@ public class ActivityLogService {
 
     // Get logs by userId and action type
     public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String action) {
-        try {
-            Action actionEnum = Action.valueOf(action.toUpperCase());
-            List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId, actionEnum);
-            return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid action type: " + action);
-        }
+        List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId, action);
+        return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     // Convert ActivityLog to ActivityLogDTO
     private ActivityLogDTO mapToDTO(ActivityLog activityLog) {
         return new ActivityLogDTO(
                 activityLog.getId(),
-                activityLog.getUser().getId(), // Get userId from User object
-                activityLog.getAction().name(),
+                activityLog.getUserId(),
+                activityLog.getAction().name(), // Convert Action enum to String
                 activityLog.getPerformedBy(),
-                activityLog.getTimestamp(),
-                activityLog.getDetails());
+                activityLog.getTimestamp(), // Assuming timestamp is stored as LocalDateTime
+                activityLog.getDetails() // Map details
+        );
     }
 }

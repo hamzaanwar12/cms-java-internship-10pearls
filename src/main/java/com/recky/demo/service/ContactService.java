@@ -9,14 +9,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.recky.demo.api.ContactController;
 import com.recky.demo.dao.ContactRepository;
 import com.recky.demo.model.Contact;
+
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ContactService {
 
     @Autowired
     private ContactRepository contactRepository;
+
+    @Autowired
+    private ActivityLogService activityLogService; // Inject ActivityLogService
+
+    private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
 
     public boolean existsByPhone(String phone) {
         return contactRepository.existsByPhone(phone);
@@ -26,8 +36,14 @@ public class ContactService {
         return contactRepository.existsByPhoneAndIdNot(phone, id);
     }
 
+    @Transactional
     public Contact saveContact(Contact contact) {
-        return contactRepository.save(contact);
+        try {
+            return contactRepository.save(contact);
+        } catch (Exception e) {
+            logger.error("Error saving contact: ", e);
+            throw new RuntimeException("Failed to save contact", e);
+        }
     }
 
     public Optional<Contact> findById(Long id) {
@@ -52,7 +68,7 @@ public class ContactService {
     public Optional<Contact> getContactByUserIdAndContactId(Long userId, Long contactId) {
         return contactRepository.findByUserIdAndContactId(userId, contactId);
     }
-    
+
     // Get a contact by phone
     // public Optional<Contact> getContactByPhone(String phone) {
     // return contactRepository.findByPhone(phone);
@@ -69,8 +85,18 @@ public class ContactService {
     }
 
     // Delete a contact
-    public void deleteContact(Long id) {
-        contactRepository.deleteById(id);
+    @Transactional
+    public void deleteContact(Long contactId, Long userId) {
+        // Perform the deletion logic first
+        contactRepository.deleteById(contactId);
+
+        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
+        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
+        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
+        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
+
+        // Log the activity
+        activityLogService.logActivity(userId, "DELETE", userId, "Deleted contact with ID: " + contactId);
     }
 
     // Get all contacts for a user, filtering based on optional criteria (email or
@@ -102,6 +128,29 @@ public class ContactService {
 
     public List<Contact> getContactsByEmail(String email) {
         return contactRepository.findByEmail(email);
+    }
+
+    // Get paginated contacts created within a specific date range for a user
+    public Page<Contact> getContactsByDateRangePaginated(
+            Long userId,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            int page,
+            int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        return contactRepository.findByUserIdAndCreatedAtBetween(userId, startDate, endDate, pageable);
+    }
+
+    public boolean existsByPhoneAndUserId(String phone, Long userId) {
+        return contactRepository.existsByPhoneAndUserId(phone, userId);
+    }
+
+    public boolean existsByIdAndUserId(Long id, Long userId) {
+        return contactRepository.existsByIdAndUserId(id, userId);
+    }
+
+    public boolean existsById(Long id) {
+        return contactRepository.existsById(id);
     }
 
 }

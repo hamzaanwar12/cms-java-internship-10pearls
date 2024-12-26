@@ -48,6 +48,19 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     boolean existsByPhoneAndIdNot(String phone, Long id);
 
+    // Paginated query for contacts by userId and created_at date range
+    Page<Contact> findByUserIdAndCreatedAtBetween(
+            Long userId,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            Pageable pageable);
+
+    boolean existsByPhoneAndUserId(String phone, Long userId);
+
+    // Custom query to check if a contact exists with the given id and user id
+    boolean existsByIdAndUserId(Long id, Long userId);
+
+
     @Query("SELECT c FROM Contact c WHERE c.user.id = :userId AND c.id = :contactId")
     Optional<Contact> findByUserIdAndContactId(@Param("userId") Long userId, @Param("contactId") Long contactId);
 

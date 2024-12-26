@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.recky.demo.dao.UserRepository;
+import com.recky.demo.exception.UserNotFoundException;
 import com.recky.demo.model.User;
 
 @Service
@@ -50,5 +51,10 @@ public class UserService {
     // Get a paginated list of users
     public Page<User> getUsersPage(int page, int size) {
         return userRepository.findAll(PageRequest.of(page, size));
+    }
+
+    public User getUserByIdOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
     }
 }
