@@ -3,17 +3,16 @@ package com.recky.demo.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.recky.demo.dao.ActivityLogRepository;
 import com.recky.demo.dto.ActivityLogDTO;
-import com.recky.demo.model.ActivityLog;
+import com.recky.demo.model.ActivityLog; // Import the enum
+import com.recky.demo.model.ActivityLog.Action;
 import com.recky.demo.model.User;
-
-import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class ActivityLogService {
@@ -73,10 +72,30 @@ public class ActivityLogService {
     }
 
     // Get logs by userId and action type
+    // public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String
+    // action) {
+    // List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId,
+    // action);
+    // return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
+    // }
+
+    // public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String
+    // action) {
+    // try {
+    // Action actionEnum = Action.valueOf(action.toUpperCase());
+    // List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId,
+    // actionEnum);
+    // return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
+    // } catch (IllegalArgumentException e) {
+    // throw new IllegalArgumentException("Invalid action type: " + action);
+    // }
+    // }
+
     public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String action) {
         try {
             Action actionEnum = Action.valueOf(action.toUpperCase());
-            List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId, actionEnum);
+            List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId,
+                    actionEnum);
             return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid action type: " + action);

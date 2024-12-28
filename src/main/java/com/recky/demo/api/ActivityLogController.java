@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.recky.demo.dto.ActivityLogDTO;
 import com.recky.demo.dto.ActivityLogRequest;
 import com.recky.demo.service.ActivityLogService;
-import com.recky.demo.util.ApiResponse;
+import com.recky.demo.util.ApiResponse; // Import the enum
 
 @RestController
 @RequestMapping("/api/activity-logs")
@@ -89,6 +89,8 @@ public class ActivityLogController {
     }
 
     // Get logs by userId and action
+    // import com.recky.demo.model.ActivityLog.Action; // Import the enum
+
     @GetMapping("/user/{userId}/action/{action}")
     public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserIdAndAction(@PathVariable Long userId,
             @PathVariable String action) {
@@ -102,6 +104,10 @@ public class ActivityLogController {
             ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
                     HttpStatus.OK.value(), "success", "Logs retrieved successfully", logs);
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
+                    HttpStatus.BAD_REQUEST.value(), "error", "Invalid action type: " + action, null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
                     HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while retrieving logs", null);
