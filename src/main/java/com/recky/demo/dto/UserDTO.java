@@ -32,6 +32,23 @@ public class UserDTO {
         this.contactCount = contactCount;
     }
 
+    //empty constructor:
+    public UserDTO() {
+        // Initialize fields with default values if necessary
+        this.id = null;
+        this.username = null;
+        this.email = null;
+        this.name = null;
+        this.role = null;
+        this.status = null;
+        this.createdAt = null;
+        this.updatedAt = null;
+        this.deactivatedAt = null;
+        this.deactivatedBy = null;
+        this.contactCount = 0;
+    }
+
+
     // Getters and Setters
     public Long getId() {
         return id;
