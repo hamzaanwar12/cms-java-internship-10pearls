@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +23,10 @@ import com.recky.demo.model.User;
 import com.recky.demo.service.UserService;
 import com.recky.demo.util.ApiResponse;
 
+
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
@@ -168,7 +171,7 @@ public class UserController {
     }
 
     // Get all users
-    @GetMapping
+    @GetMapping("/get-users")
     public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
         try {
             List<UserDTO> users = userService.getAllUsers()
