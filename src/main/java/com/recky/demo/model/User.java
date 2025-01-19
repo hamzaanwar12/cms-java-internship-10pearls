@@ -31,9 +31,15 @@ public class User {
         ACTIVE, INACTIVE, DEACTIVATED, SUSPENDED
     }
 
+    // @Id
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // private Long id;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)  // Changed to UUID for String ID
+    private String id;
+
+
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -73,12 +79,21 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contact> contacts;
 
-    // Getters and Setters
-    public Long getId() {
+    // // Getters and Setters
+    // public Long getId() {
+    //     return id;
+    // }
+
+    // public void setId(Long id) {
+    //     this.id = id;
+    // }
+
+     // Update getter and setter for id
+     public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

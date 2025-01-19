@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 
 public class ActivityLogDTO {
     private Long id;
-    private Long userId;
+    private String userId;  // Changed to String to match user_id change
     private String action; // Storing action as a string (ENUM Action converted to String)
     private Long performedBy;
     private LocalDateTime timestamp;
     private String details;
 
     // Constructors
-    public ActivityLogDTO(Long id, Long userId, String action, Long performedBy, LocalDateTime timestamp,
+    public ActivityLogDTO(Long id, String userId, String action, Long performedBy, LocalDateTime timestamp,
             String details) {
         this.id = id;
         this.userId = userId;
@@ -30,11 +30,11 @@ public class ActivityLogDTO {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {  // Changed to String
         this.userId = userId;
     }
 
@@ -74,7 +74,7 @@ public class ActivityLogDTO {
     public String toString() {
         return "ActivityLogDTO{" +
                 "id=" + id +
-                ", userId=" + userId +
+                ", userId='" + userId + '\'' +
                 ", action='" + action + '\'' +
                 ", performedBy=" + performedBy +
                 ", timestamp=" + timestamp +

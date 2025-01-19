@@ -3,7 +3,8 @@ package com.recky.demo.dto;
 import java.time.LocalDateTime;
 
 public class UserDTO {
-    private Long id;
+    // private Long id;
+    private String id; 
     private String username;
     private String email;
     private String name;
@@ -16,7 +17,7 @@ public class UserDTO {
     private int contactCount;
 
     // Constructors
-    public UserDTO(Long id, String username, String email, String name, String role, String status,
+    public UserDTO(String id, String username, String email, String name, String role, String status,
             LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deactivatedAt, Long deactivatedBy,
             int contactCount) {
         this.id = id;
@@ -50,11 +51,11 @@ public class UserDTO {
 
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

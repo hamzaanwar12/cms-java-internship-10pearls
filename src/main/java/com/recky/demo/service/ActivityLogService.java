@@ -28,7 +28,7 @@ public class ActivityLogService {
         this.userService = userService;
     }
 
-    public ActivityLogDTO logActivity(Long userId, String action, Long performedBy, String details) {
+    public ActivityLogDTO logActivity(String userId, String action, Long performedBy, String details) {
         try {
             if (userId == null) {
                 throw new IllegalArgumentException("userId cannot be null");
@@ -60,7 +60,7 @@ public class ActivityLogService {
     }
 
     // Get logs by userId
-    public List<ActivityLogDTO> getLogsByUserId(Long userId) {
+    public List<ActivityLogDTO> getLogsByUserId(String userId) {
         List<ActivityLog> logs = activityLogRepository.findByUserId(userId);
         return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
@@ -72,14 +72,14 @@ public class ActivityLogService {
     }
 
     // Get logs by userId and action type
-    // public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String
+    // public List<ActivityLogDTO> getLogsByUserIdAndAction(String userId, String
     // action) {
     // List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId,
     // action);
     // return logs.stream().map(this::mapToDTO).collect(Collectors.toList());
     // }
 
-    // public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String
+    // public List<ActivityLogDTO> getLogsByUserIdAndAction(String userId, String
     // action) {
     // try {
     // Action actionEnum = Action.valueOf(action.toUpperCase());
@@ -91,7 +91,7 @@ public class ActivityLogService {
     // }
     // }
 
-    public List<ActivityLogDTO> getLogsByUserIdAndAction(Long userId, String action) {
+    public List<ActivityLogDTO> getLogsByUserIdAndAction(String userId, String action) {
         try {
             Action actionEnum = Action.valueOf(action.toUpperCase());
             List<ActivityLog> logs = activityLogRepository.findByUserIdAndAction(userId,

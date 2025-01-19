@@ -24,7 +24,7 @@ public class UserService {
     }
 
     // Find a user by ID
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
@@ -44,7 +44,7 @@ public class UserService {
     }
 
     // Delete a user
-    public void deleteUser(Long id) {
+    public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
 
@@ -53,7 +53,8 @@ public class UserService {
         return userRepository.findAll(PageRequest.of(page, size));
     }
 
-    public User getUserByIdOrThrow(Long userId) {
+    // Find a user by ID or throw an exception if not found
+    public User getUserByIdOrThrow(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
     }

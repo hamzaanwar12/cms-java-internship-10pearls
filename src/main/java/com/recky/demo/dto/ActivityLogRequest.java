@@ -1,18 +1,17 @@
-// First, create a request body class
 package com.recky.demo.dto;
 
 public class ActivityLogRequest {
-    private Long userId;
+    private String userId;  // Changed to String to match user_id change
     private String action;
     private Long performedBy;
     private String details;
 
     // Getters and Setters
-    public Long getUserId() {
+    public String getUserId() {  // Changed to String
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {  // Changed to String
         this.userId = userId;
     }
 
@@ -40,4 +39,3 @@ public class ActivityLogRequest {
         this.details = details;
     }
 }
-

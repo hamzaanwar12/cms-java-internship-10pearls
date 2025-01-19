@@ -17,10 +17,10 @@ import com.recky.demo.model.Contact;
 public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     // Find all contacts by userId
-    List<Contact> findAllByUserId(Long userId);
+    List<Contact> findAllByUserId(String userId);
 
     // Find a specific contact by userId and contactId
-    Optional<Contact> findByUserIdAndId(Long userId, Long id);
+    Optional<Contact> findByUserIdAndId(String userId, Long id);
 
     List<Contact> findByPhone(String phone);
 
@@ -32,17 +32,17 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     // Find a contact by email
     // Optional<Contact> findByEmail(String email);
 
-    List<Contact> findByUserIdAndEmailAndPhone(Long userId, String email, String phone);
+    List<Contact> findByUserIdAndEmailAndPhone(String userId, String email, String phone);
 
-    List<Contact> findByUserIdAndEmail(Long userId, String email);
+    List<Contact> findByUserIdAndEmail(String userID, String email);
 
-    List<Contact> findByUserIdAndPhone(Long userId, String phone);
+    List<Contact> findByUserIdAndPhone(String userID, String phone);
 
     // Find contacts by created_at date range
-    List<Contact> findByUserIdAndCreatedAtBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate);
+    List<Contact> findByUserIdAndCreatedAtBetween(String userID, LocalDateTime startDate, LocalDateTime endDate);
 
     // Paginated query for contacts by userId
-    Page<Contact> findByUserId(Long userId, Pageable pageable);
+    Page<Contact> findByUserId(String userID, Pageable pageable);
 
     boolean existsByPhone(String phone);
 
@@ -50,18 +50,18 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     // Paginated query for contacts by userId and created_at date range
     Page<Contact> findByUserIdAndCreatedAtBetween(
-            Long userId,
+            String userID,
             LocalDateTime startDate,
             LocalDateTime endDate,
             Pageable pageable);
 
-    boolean existsByPhoneAndUserId(String phone, Long userId);
+    boolean existsByPhoneAndUserId(String phone, String userID);
 
     // Custom query to check if a contact exists with the given id and user id
-    boolean existsByIdAndUserId(Long id, Long userId);
+    boolean existsByIdAndUserId(Long id, String userID);
 
 
     @Query("SELECT c FROM Contact c WHERE c.user.id = :userId AND c.id = :contactId")
-    Optional<Contact> findByUserIdAndContactId(@Param("userId") Long userId, @Param("contactId") Long contactId);
+    Optional<Contact> findByUserIdAndContactId(@Param("userId") String userID, @Param("contactId") Long contactId);
 
 }

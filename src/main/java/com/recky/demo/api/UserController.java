@@ -54,7 +54,7 @@ public class UserController {
 
     // Update a user
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable String id, @RequestBody User user) {
         try {
             User existingUser = userService.getUserById(id)
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -83,7 +83,7 @@ public class UserController {
 
     // Get a user by ID
     @GetMapping("/get-userById/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable String id) {
         try {
             User user = userService.getUserById(id)
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -197,7 +197,7 @@ public class UserController {
 
     // Delete a user
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String id) {
         try {
             userService.deleteUser(id);
             ApiResponse<Void> response = new ApiResponse<>(HttpStatus.NO_CONTENT.value(), "success",

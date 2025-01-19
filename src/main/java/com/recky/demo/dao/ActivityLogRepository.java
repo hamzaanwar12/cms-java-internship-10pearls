@@ -10,10 +10,12 @@ import com.recky.demo.model.ActivityLog.Action; // Import the enum
 
 @Repository
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
-    List<ActivityLog> findByUserId(Long userId);
+    // Update userId parameter to String
+    List<ActivityLog> findByUserId(String userId);  // Changed Long to String
 
     List<ActivityLog> findByPerformedBy(Long performedBy);
 
     // List<ActivityLog> findByUserIdAndAction(Long userId, String action);
-    List<ActivityLog> findByUserIdAndAction(Long userId, Action action);
+    // Update userId parameter to String
+    List<ActivityLog> findByUserIdAndAction(String userId, Action action);  // Changed Long to String
 }

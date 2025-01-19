@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class ContactDTO {
     private Long id;
-    private Long userId;
+    private String userId; // Changed from Long to String
     private String name;
     private String phone;
     private String email;
@@ -13,7 +13,7 @@ public class ContactDTO {
     private LocalDateTime updatedAt;
 
     // Constructors
-    public ContactDTO(Long id, Long userId, String name, String phone, String email, String address, 
+    public ContactDTO(Long id, String userId, String name, String phone, String email, String address,
                       LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
@@ -34,11 +34,11 @@ public class ContactDTO {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -94,7 +94,7 @@ public class ContactDTO {
     public String toString() {
         return "ContactDTO{" +
                 "id=" + id +
-                ", userId=" + userId +
+                ", userId='" + userId + '\'' +
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
