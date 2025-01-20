@@ -13,8 +13,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -36,11 +34,10 @@ public class User {
     // private Long id;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)  // Changed to UUID for String ID
+    @Column(columnDefinition = "VARCHAR(255)")
+    // @GeneratedValue (strategy = GenerationType.UUID) // Changed to UUID for String
     private String id;
-
-
-
+    
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -73,7 +70,7 @@ public class User {
     private LocalDateTime deactivatedAt;
 
     @Column(name = "deactivated_by", nullable = true)
-    private Long deactivatedBy;
+    private String deactivatedBy;
 
     @JsonIgnore // Prevent recursion during serialization
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -81,15 +78,15 @@ public class User {
 
     // // Getters and Setters
     // public Long getId() {
-    //     return id;
+    // return id;
     // }
 
     // public void setId(Long id) {
-    //     this.id = id;
+    // this.id = id;
     // }
 
-     // Update getter and setter for id
-     public String getId() {
+    // Update getter and setter for id
+    public String getId() {
         return id;
     }
 
@@ -169,11 +166,11 @@ public class User {
         this.deactivatedAt = deactivatedAt;
     }
 
-    public Long getDeactivatedBy() {
+    public String getDeactivatedBy() {
         return deactivatedBy;
     }
 
-    public void setDeactivatedBy(Long deactivatedBy) {
+    public void setDeactivatedBy(String deactivatedBy) {
         this.deactivatedBy = deactivatedBy;
     }
 

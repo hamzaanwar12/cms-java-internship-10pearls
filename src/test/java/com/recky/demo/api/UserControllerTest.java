@@ -1,9 +1,9 @@
 package com.recky.demo.api;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,13 +43,11 @@ class UserControllerTest {
 
                 // Initialize test user
                 testUser = new User();
-                testUser.setId(1L);
-                testUser.setUsername("testUser");
+                testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
+                testUser.setUsername("testuser");
                 testUser.setEmail("test@example.com");
-                testUser.setRole(User.Role.USER);
-                testUser.setStatus(User.Status.ACTIVE);
-                testUser.setCreatedAt(LocalDateTime.now());
-
+                testUser.setPassword("password");
+                testUser.setName("Test User");
                 System.out.println("Test setup completed");
         }
 
@@ -77,7 +75,7 @@ class UserControllerTest {
         void testUpdateUser_Success() {
                 // Arrange
                 System.out.println("\n=== Testing Update User Success ===");
-                Long userId = 1L;
+                String userId = "some-random-id";
                 User updateUser = new User();
                 updateUser.setUsername("updatedUser");
                 updateUser.setEmail("updated@example.com");
@@ -98,7 +96,7 @@ class UserControllerTest {
         void testUpdateUser_UserNotFound() {
                 // Arrange
                 System.out.println("\n=== Testing Update User Not Found ===");
-                Long userId = 1L;
+                String userId = "some-random-id";
                 User updateUser = new User();
 
                 when(userService.getUserById(userId)).thenReturn(Optional.empty());
@@ -115,7 +113,7 @@ class UserControllerTest {
         void testGetUserById_UserFound() {
                 // Arrange
                 System.out.println("\n=== Testing Get User By ID (Found) ===");
-                Long userId = 1L;
+                String userId = "some-random-id";
 
                 when(userService.getUserById(userId)).thenReturn(Optional.of(testUser));
 
@@ -203,7 +201,7 @@ class UserControllerTest {
         void testDeleteUser_Success() {
                 // Arrange
                 System.out.println("\n=== Testing Delete User Success ===");
-                Long userId = 1L;
+                String userId = "some-random-id";
 
                 doNothing().when(userService).deleteUser(userId);
 

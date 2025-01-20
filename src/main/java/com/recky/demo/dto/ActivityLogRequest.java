@@ -1,17 +1,16 @@
 package com.recky.demo.dto;
 
 public class ActivityLogRequest {
-    private String userId;  // Changed to String to match user_id change
+    private String userId; // Changed to String to match user_id change
     private String action;
-    private Long performedBy;
     private String details;
 
     // Getters and Setters
-    public String getUserId() {  // Changed to String
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {  // Changed to String
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -21,14 +20,6 @@ public class ActivityLogRequest {
 
     public void setAction(String action) {
         this.action = action;
-    }
-
-    public Long getPerformedBy() {
-        return performedBy;
-    }
-
-    public void setPerformedBy(Long performedBy) {
-        this.performedBy = performedBy;
     }
 
     public String getDetails() {

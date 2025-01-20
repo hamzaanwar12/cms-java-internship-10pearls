@@ -47,7 +47,8 @@ public class Contact {
 
     @JsonIgnore // Prevent recursive serialization
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false)
+    // @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "VARCHAR(255)")
     private User user;
 
     // Getters and Setters

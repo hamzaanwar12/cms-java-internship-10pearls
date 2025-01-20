@@ -88,7 +88,7 @@ public class ContactController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<Contact>> createContact(@RequestBody Contact contact, @RequestParam Long userId) {
+    public ResponseEntity<ApiResponse<Contact>> createContact(@RequestBody Contact contact, @RequestParam String userId) {
         try {
             // Log the userId
             logger.info("Received userId: {}", userId);
@@ -109,7 +109,7 @@ public class ContactController {
             // Save the contact
             Contact savedContact = contactService.saveContact(contact);
 
-            activityLogService.logActivity(userId, "CREATE", userId,
+            activityLogService.logActivity(userId, "CREATE", 
                     "Created contact with phone: " + contact.getPhone());
 
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -127,7 +127,7 @@ public class ContactController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<Contact>> updateContact(@PathVariable Long id, @RequestBody Contact contact,
-            @RequestParam Long userId) {
+            @RequestParam String userId) {
         try {
             Optional<Contact> existingContact = contactService.findById(id);
             if (!existingContact.isPresent()) {
@@ -143,7 +143,7 @@ public class ContactController {
             Contact updatedContact = contactService.saveContact(contact);
 
             // Log activity
-            activityLogService.logActivity(userId, "UPDATE", userId, "Updated contact with ID: " + id);
+            activityLogService.logActivity(userId, "UPDATE",  "Updated contact with ID: " + id);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact updated successfully",
@@ -156,7 +156,7 @@ public class ContactController {
     }
 
     @DeleteMapping("/{userId}/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteContact(@PathVariable Long userId, @PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteContact(@PathVariable String userId, @PathVariable Long id) {
         try {
             // Log the incoming request details
             logger.info("Received delete request for contact ID: {} by user ID: {}", id, userId);
@@ -189,14 +189,14 @@ public class ContactController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<List<Contact>>> getContactsByUserId(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestParam Optional<String> email,
             @RequestParam Optional<String> phone) {
 
         List<Contact> contacts = contactService.getContactsByUserIdWithFilters(userId, email, phone);
 
         // Log activity
-        activityLogService.logActivity(userId, "GET", userId, "Fetched contacts for userId: " + userId);
+        activityLogService.logActivity(userId, "GET",  "Fetched contacts for userId: " + userId);
 
         return ResponseEntity
                 .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts));
@@ -204,13 +204,13 @@ public class ContactController {
 
     @GetMapping("/user/{userId}/paginated")
     public ResponseEntity<ApiResponse<Page<Contact>>> getPaginatedContacts(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             Pageable pageable) {
 
         Page<Contact> contacts = contactService.getContactsByUserIdPaginated(userId, pageable);
 
         // Log activity
-        activityLogService.logActivity(userId, "GET", userId, "Fetched paginated contacts for userId: " + userId);
+        activityLogService.logActivity(userId, "GET",  "Fetched paginated contacts for userId: " + userId);
 
         return ResponseEntity
                 .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contacts fetched successfully", contacts,
@@ -222,17 +222,17 @@ public class ContactController {
      */
     @GetMapping("/user/{userId}/contact/{contactId}")
     public ResponseEntity<ApiResponse<Optional<Contact>>> getContactByUserIdAndContactId(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @PathVariable Long contactId) {
         try {
             Optional<Contact> contact = contactService.getContactByUserIdAndContactId(userId, contactId);
             if (!contact.isPresent()) {
-                activityLogService.logActivity(userId, "GET", userId, "Contact not found with ID: " + contactId);
+                activityLogService.logActivity(userId, "GET",  "Contact not found with ID: " + contactId);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "Contact not found", null));
             }
 
-            activityLogService.logActivity(userId, "GET", userId, "Fetched contact with ID: " + contactId);
+            activityLogService.logActivity(userId, "GET",  "Fetched contact with ID: " + contactId);
             return ResponseEntity
                     .ok(new ApiResponse<>(HttpStatus.OK.value(), "success", "Contact fetched successfully", contact));
         } catch (Exception e) {
@@ -248,7 +248,7 @@ public class ContactController {
      */
     @GetMapping("/user/{userId}/date-range")
     public ResponseEntity<ApiResponse<List<Contact>>> getContactsByDateRange(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestParam("startDate") String startDateStr,
             @RequestParam("endDate") String endDateStr) {
         try {
@@ -257,7 +257,7 @@ public class ContactController {
 
             List<Contact> contacts = contactService.getContactsByDateRange(userId, startDate, endDate);
 
-            activityLogService.logActivity(userId, "GET", userId,
+            activityLogService.logActivity(userId, "GET", 
                     "Fetched contacts from date range " + startDate + " to " + endDate);
 
             return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "success",
@@ -275,7 +275,7 @@ public class ContactController {
      */
     @GetMapping("/user/{userId}/date-range/paginated")
     public ResponseEntity<ApiResponse<Page<Contact>>> getContactsByDateRangePaginated(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestParam("startDate") String startDateStr,
             @RequestParam("endDate") String endDateStr,
             @RequestParam(defaultValue = "0") int page,
@@ -287,7 +287,7 @@ public class ContactController {
             Page<Contact> contacts = contactService.getContactsByDateRangePaginated(userId, startDate, endDate, page,
                     size);
 
-            activityLogService.logActivity(userId, "GET", userId,
+            activityLogService.logActivity(userId, "GET", 
                     "Fetched paginated contacts from date range " + startDate + " to " + endDate);
 
             return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "success",

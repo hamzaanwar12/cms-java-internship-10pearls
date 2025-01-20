@@ -1,18 +1,20 @@
 package com.recky.demo.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,7 +46,7 @@ class ContactControllerTest {
 
     private Contact testContact;
     private User testUser;
-    private Long userId = 1L;
+    private String userId = "some-random-id";
 
     @BeforeEach
     void setUp() {
@@ -53,8 +55,11 @@ class ContactControllerTest {
 
         // Initialize test user
         testUser = new User();
-        testUser.setId(userId);
-        testUser.setUsername("testUser");
+        testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
+        testUser.setUsername("testuser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("password");
+        testUser.setName("Test User");
 
         // Initialize test contact
         testContact = new Contact();

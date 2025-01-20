@@ -1,9 +1,13 @@
 package com.recky.demo.dao;
 
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.Optional;
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
 import com.recky.demo.model.Contact;
 import com.recky.demo.model.User;
 
@@ -29,15 +34,25 @@ public class ContactRepositoryTest {
     void setUp() {
         System.out.println("\n=== Setting up new test contact and user ===");
 
-        // Create test user
+        // Create test user with a String ID
+        // testUser = new User();
+        // testUser.setUsername("testuser");
+        // testUser.setEmail("test@example.com");
+        // testUser.setPassword("password");
+        // testUser.setName("Test User");
+
+
+
         testUser = new User();
+        testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
         testUser.setPassword("password");
         testUser.setName("Test User");
+
         testUser = entityManager.persist(testUser);
 
-        // Create test contact
+        // Create test contact with userId as a String
         testContact = new Contact();
         testContact.setName("Test Contact");
         testContact.setPhone("1234567890");

@@ -13,12 +13,12 @@ public class UserDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deactivatedAt;
-    private Long deactivatedBy;
+    private String deactivatedBy;
     private int contactCount;
 
     // Constructors
     public UserDTO(String id, String username, String email, String name, String role, String status,
-            LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deactivatedAt, Long deactivatedBy,
+            LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deactivatedAt, String deactivatedBy,
             int contactCount) {
         this.id = id;
         this.username = username;
@@ -123,11 +123,11 @@ public class UserDTO {
         this.deactivatedAt = deactivatedAt;
     }
 
-    public Long getDeactivatedBy() {
+    public String getDeactivatedBy() {
         return deactivatedBy;
     }
 
-    public void setDeactivatedBy(Long deactivatedBy) {
+    public void setDeactivatedBy(String deactivatedBy) {
         this.deactivatedBy = deactivatedBy;
     }
 

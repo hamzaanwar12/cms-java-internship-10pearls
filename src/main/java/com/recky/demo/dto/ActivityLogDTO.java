@@ -6,17 +6,14 @@ public class ActivityLogDTO {
     private Long id;
     private String userId;  // Changed to String to match user_id change
     private String action; // Storing action as a string (ENUM Action converted to String)
-    private Long performedBy;
     private LocalDateTime timestamp;
     private String details;
 
     // Constructors
-    public ActivityLogDTO(Long id, String userId, String action, Long performedBy, LocalDateTime timestamp,
-            String details) {
+    public ActivityLogDTO(Long id, String userId, String action, LocalDateTime timestamp, String details) {
         this.id = id;
         this.userId = userId;
         this.action = action;
-        this.performedBy = performedBy;
         this.timestamp = timestamp;
         this.details = details;
     }
@@ -34,7 +31,7 @@ public class ActivityLogDTO {
         return userId;
     }
 
-    public void setUserId(String userId) {  // Changed to String
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -44,14 +41,6 @@ public class ActivityLogDTO {
 
     public void setAction(String action) {
         this.action = action;
-    }
-
-    public Long getPerformedBy() {
-        return performedBy;
-    }
-
-    public void setPerformedBy(Long performedBy) {
-        this.performedBy = performedBy;
     }
 
     public LocalDateTime getTimestamp() {
@@ -76,7 +65,6 @@ public class ActivityLogDTO {
                 "id=" + id +
                 ", userId='" + userId + '\'' +
                 ", action='" + action + '\'' +
-                ", performedBy=" + performedBy +
                 ", timestamp=" + timestamp +
                 ", details='" + details + '\'' +
                 '}';

@@ -3,6 +3,8 @@ package com.recky.demo.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,8 @@ import com.recky.demo.model.User;
 
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -55,7 +59,12 @@ public class UserService {
 
     // Find a user by ID or throw an exception if not found
     public User getUserByIdOrThrow(String userId) {
+        logger.info("Searching for user with ID: {}", userId);
+
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+                .orElseThrow(() -> {
+                    logger.error("User with ID {} not found", userId);
+                    return new UserNotFoundException("User with ID " + userId + " not found");
+                });
     }
 }

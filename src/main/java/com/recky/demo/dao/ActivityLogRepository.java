@@ -13,7 +13,7 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
     // Update userId parameter to String
     List<ActivityLog> findByUserId(String userId);  // Changed Long to String
 
-    List<ActivityLog> findByPerformedBy(Long performedBy);
+    // List<ActivityLog> findByPerformedBy(Long performedBy);
 
     // List<ActivityLog> findByUserIdAndAction(Long userId, String action);
     // Update userId parameter to String

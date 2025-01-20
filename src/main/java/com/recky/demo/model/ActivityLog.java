@@ -23,7 +23,7 @@ public class ActivityLog {
     private static final Logger logger = LoggerFactory.getLogger(ActivityLog.class);
 
     public enum Action {
-        CREATE, UPDATE, DELETE, LOGIN, LOGOUT
+        GET, CREATE, UPDATE, DELETE, LOGIN, LOGOUT
     }
 
     @Id
@@ -31,15 +31,13 @@ public class ActivityLog {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    // @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "VARCHAR(255)")
     private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Action action;
-
-    @Column(name = "performed_by", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    private Long performedBy;
 
     @CreationTimestamp
     @Column(name = "timestamp", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -53,16 +51,14 @@ public class ActivityLog {
     }
 
     // Constructor for new activity log creation
-    public ActivityLog(User user, Action action, Long performedBy, String details) {
+    public ActivityLog(User user, Action action, String details) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
-        logger.info("Creating activity log - User ID: {}, Action: {}, Performed By: {}",
-                user.getId(), action, performedBy);
+        logger.info("Creating activity log - User ID: {}, Action: {}", user.getId(), action);
 
         this.user = user;
         this.action = action;
-        this.performedBy = performedBy;
         this.details = details;
     }
 
@@ -94,14 +90,6 @@ public class ActivityLog {
         this.action = action;
     }
 
-    public Long getPerformedBy() {
-        return performedBy;
-    }
-
-    public void setPerformedBy(Long performedBy) {
-        this.performedBy = performedBy;
-    }
-
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
@@ -124,7 +112,6 @@ public class ActivityLog {
                 "id=" + id +
                 ", user=" + (user != null ? user.getId() : null) +
                 ", action=" + action +
-                ", performedBy=" + performedBy +
                 ", timestamp=" + timestamp +
                 ", details='" + details + '\'' +
                 '}';

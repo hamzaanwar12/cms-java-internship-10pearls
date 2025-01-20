@@ -1,34 +1,38 @@
 package com.recky.demo.dao;
 
-import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
 import com.recky.demo.model.User;
 
 @DataJpaTest
 public class UserRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
     private User testUser;
 
     @BeforeEach
     void setUp() {
-        System.out.println("\n=== Setting up new test user ===");
         testUser = new User();
+        testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
         testUser.setPassword("password");
         testUser.setName("Test User");
-        System.out.println("Created test user with username: " + testUser.getUsername() + 
-                          " and email: " + testUser.getEmail());
     }
 
     @Test
@@ -44,8 +48,8 @@ public class UserRepositoryTest {
 
         System.out.println("Verifying user was found and matches expected data...");
         assertTrue(found.isPresent(), "User should be found in database");
-        assertEquals(testUser.getUsername(), found.get().getUsername(), 
-                    "Username should match original");
+        assertEquals(testUser.getUsername(), found.get().getUsername(),
+                "Username should match original");
         System.out.println("Test completed successfully - User found by ID");
     }
 
@@ -61,10 +65,10 @@ public class UserRepositoryTest {
 
         System.out.println("Verifying user data matches...");
         assertTrue(found.isPresent(), "User should be found by username");
-        assertEquals(testUser.getUsername(), found.get().getUsername(), 
-                    "Username should match");
-        assertEquals(testUser.getEmail(), found.get().getEmail(), 
-                    "Email should match");
+        assertEquals(testUser.getUsername(), found.get().getUsername(),
+                "Username should match");
+        assertEquals(testUser.getEmail(), found.get().getEmail(),
+                "Email should match");
         System.out.println("Test completed successfully - User found by username");
     }
 
@@ -80,10 +84,10 @@ public class UserRepositoryTest {
 
         System.out.println("Verifying user data matches...");
         assertTrue(found.isPresent(), "User should be found by email");
-        assertEquals(testUser.getEmail(), found.get().getEmail(), 
-                    "Email should match");
-        assertEquals(testUser.getUsername(), found.get().getUsername(), 
-                    "Username should match");
+        assertEquals(testUser.getEmail(), found.get().getEmail(),
+                "Email should match");
+        assertEquals(testUser.getUsername(), found.get().getUsername(),
+                "Username should match");
         System.out.println("Test completed successfully - User found by email");
     }
 
@@ -92,9 +96,9 @@ public class UserRepositoryTest {
         System.out.println("\n=== Testing findByUsername with non-existent username ===");
         String nonexistentUsername = "nonexistent";
         System.out.println("Attempting to find user with username: " + nonexistentUsername);
-        
+
         Optional<User> found = userRepository.findByUsername(nonexistentUsername);
-        
+
         System.out.println("Verifying no user was found...");
         assertFalse(found.isPresent(), "No user should be found with non-existent username");
         System.out.println("Test completed successfully - No user found as expected");
@@ -105,9 +109,9 @@ public class UserRepositoryTest {
         System.out.println("\n=== Testing findByEmail with non-existent email ===");
         String nonexistentEmail = "nonexistent@example.com";
         System.out.println("Attempting to find user with email: " + nonexistentEmail);
-        
+
         Optional<User> found = userRepository.findByEmail(nonexistentEmail);
-        
+
         System.out.println("Verifying no user was found...");
         assertFalse(found.isPresent(), "No user should be found with non-existent email");
         System.out.println("Test completed successfully - No user found as expected");
@@ -117,27 +121,27 @@ public class UserRepositoryTest {
     void whenSaveUser_thenReturnSavedUser() {
         System.out.println("\n=== Testing user save operation ===");
         System.out.println("Attempting to save test user...");
-        
+
         User savedUser = userRepository.save(testUser);
-        
+
         System.out.println("Verifying saved user data...");
         assertNotNull(savedUser.getId(), "Saved user should have an ID");
-        assertEquals(testUser.getUsername(), savedUser.getUsername(), 
-                    "Username should match original");
-        assertEquals(testUser.getEmail(), savedUser.getEmail(), 
-                    "Email should match original");
-        System.out.println("Test completed successfully - User saved with ID: " + 
-                          savedUser.getId());
+        assertEquals(testUser.getUsername(), savedUser.getUsername(),
+                "Username should match original");
+        assertEquals(testUser.getEmail(), savedUser.getEmail(),
+                "Email should match original");
+        System.out.println("Test completed successfully - User saved with ID: " +
+                savedUser.getId());
     }
 
     @Test
     void whenFindById_thenReturnEmpty() {
         System.out.println("\n=== Testing findById with non-existent ID ===");
-        Long nonexistentId = 999L;
+        String nonexistentId = "nonexistent-id"; // Now using String ID
         System.out.println("Attempting to find user with ID: " + nonexistentId);
-        
+
         Optional<User> found = userRepository.findById(nonexistentId);
-        
+
         System.out.println("Verifying no user was found...");
         assertFalse(found.isPresent(), "No user should be found with non-existent ID");
         System.out.println("Test completed successfully - No user found as expected");

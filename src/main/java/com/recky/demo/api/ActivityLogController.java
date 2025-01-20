@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.recky.demo.dto.ActivityLogDTO;
 import com.recky.demo.dto.ActivityLogRequest;
 import com.recky.demo.service.ActivityLogService;
-import com.recky.demo.util.ApiResponse; // Import the enum
+import com.recky.demo.util.ApiResponse;
 
 @RestController
 @RequestMapping("/api/activity-logs")
@@ -28,29 +28,25 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-    // Endpoint to log an activity
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<ActivityLogDTO>> logActivity(@RequestBody ActivityLogRequest request) {
         try {
             ActivityLogDTO activityLogDTO = activityLogService.logActivity(
                     request.getUserId(),
                     request.getAction(),
-                    request.getPerformedBy(),
                     request.getDetails());
             ApiResponse<ActivityLogDTO> response = new ApiResponse<>(
                     HttpStatus.CREATED.value(), "success", "Activity logged successfully", activityLogDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             ApiResponse<ActivityLogDTO> response = new ApiResponse<>(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while logging activity",
-                    null);
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while logging activity", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
-    // Get logs by userId
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserId(@PathVariable String userId) {
         try {
             List<ActivityLogDTO> logs = activityLogService.getLogsByUserId(userId);
             if (logs.isEmpty()) {
@@ -68,31 +64,8 @@ public class ActivityLogController {
         }
     }
 
-    // Get logs by performedBy
-    @GetMapping("/performed-by/{performedBy}")
-    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByPerformedBy(@PathVariable Long performedBy) {
-        try {
-            List<ActivityLogDTO> logs = activityLogService.getLogsByPerformedBy(performedBy);
-            if (logs.isEmpty()) {
-                ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
-                        HttpStatus.NOT_FOUND.value(), "error", "No logs found for the given performer", null);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
-                    HttpStatus.OK.value(), "success", "Logs retrieved successfully", logs);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<List<ActivityLogDTO>> response = new ApiResponse<>(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", "An error occurred while retrieving logs", null);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    // Get logs by userId and action
-    // import com.recky.demo.model.ActivityLog.Action; // Import the enum
-
     @GetMapping("/user/{userId}/action/{action}")
-    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserIdAndAction(@PathVariable Long userId,
+    public ResponseEntity<ApiResponse<List<ActivityLogDTO>>> getLogsByUserIdAndAction(@PathVariable String userId,
             @PathVariable String action) {
         try {
             List<ActivityLogDTO> logs = activityLogService.getLogsByUserIdAndAction(userId, action);

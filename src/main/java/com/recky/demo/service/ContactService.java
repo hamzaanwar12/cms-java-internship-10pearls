@@ -4,18 +4,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.recky.demo.api.ContactController;
 import com.recky.demo.dao.ContactRepository;
 import com.recky.demo.model.Contact;
 
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class ContactService {
@@ -56,16 +55,16 @@ public class ContactService {
     }
 
     // Get all contacts for a specific user
-    public List<Contact> getContactsByUserId(Long userId) {
+    public List<Contact> getContactsByUserId(String userId) {
         return contactRepository.findAllByUserId(userId);
     }
 
     // Get a specific contact by user ID and contact ID
-    public Optional<Contact> getContactByUserIdAndId(Long userId, Long contactId) {
+    public Optional<Contact> getContactByUserIdAndId(String userId, Long contactId) {
         return contactRepository.findByUserIdAndId(userId, contactId);
     }
 
-    public Optional<Contact> getContactByUserIdAndContactId(Long userId, Long contactId) {
+    public Optional<Contact> getContactByUserIdAndContactId(String userId, Long contactId) {
         return contactRepository.findByUserIdAndContactId(userId, contactId);
     }
 
@@ -86,7 +85,7 @@ public class ContactService {
 
     // Delete a contact
     @Transactional
-    public void deleteContact(Long contactId, Long userId) {
+    public void deleteContact(Long contactId, String userId) {
         // Perform the deletion logic first
         contactRepository.deleteById(contactId);
 
@@ -96,12 +95,13 @@ public class ContactService {
         logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
 
         // Log the activity
-        activityLogService.logActivity(userId, "DELETE", userId, "Deleted contact with ID: " + contactId);
+        // activityLogService.logActivity(userId, "DELETE", userId, "Deleted contact with ID: " + contactId);
+        activityLogService.logActivity(userId, "DELETE", "Deleted contact with ID: " + contactId);
     }
 
     // Get all contacts for a user, filtering based on optional criteria (email or
     // phone)
-    public List<Contact> getContactsByUserIdWithFilters(Long userId, Optional<String> email, Optional<String> phone) {
+    public List<Contact> getContactsByUserIdWithFilters(String userId, Optional<String> email, Optional<String> phone) {
         if (email.isPresent() && phone.isPresent()) {
             return contactRepository.findByUserIdAndEmailAndPhone(userId, email.get(), phone.get());
         } else if (email.isPresent()) {
@@ -113,12 +113,12 @@ public class ContactService {
     }
 
     // Get all contacts created within a specific date range
-    public List<Contact> getContactsByDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Contact> getContactsByDateRange(String userId, LocalDateTime startDate, LocalDateTime endDate) {
         return contactRepository.findByUserIdAndCreatedAtBetween(userId, startDate, endDate);
     }
 
     // Get a paginated list of contacts for a user
-    public Page<Contact> getContactsByUserIdPaginated(Long userId, Pageable pageable) {
+    public Page<Contact> getContactsByUserIdPaginated(String userId, Pageable pageable) {
         return contactRepository.findByUserId(userId, pageable);
     }
 
@@ -132,7 +132,7 @@ public class ContactService {
 
     // Get paginated contacts created within a specific date range for a user
     public Page<Contact> getContactsByDateRangePaginated(
-            Long userId,
+            String userId,
             LocalDateTime startDate,
             LocalDateTime endDate,
             int page,
@@ -141,11 +141,11 @@ public class ContactService {
         return contactRepository.findByUserIdAndCreatedAtBetween(userId, startDate, endDate, pageable);
     }
 
-    public boolean existsByPhoneAndUserId(String phone, Long userId) {
+    public boolean existsByPhoneAndUserId(String phone, String userId) {
         return contactRepository.existsByPhoneAndUserId(phone, userId);
     }
 
-    public boolean existsByIdAndUserId(Long id, Long userId) {
+    public boolean existsByIdAndUserId(Long id, String userId) {
         return contactRepository.existsByIdAndUserId(id, userId);
     }
 

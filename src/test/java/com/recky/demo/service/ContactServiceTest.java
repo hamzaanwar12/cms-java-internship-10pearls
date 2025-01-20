@@ -1,21 +1,26 @@
 package com.recky.demo.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,8 +49,13 @@ public class ContactServiceTest {
     void setUp() {
         System.out.println("\n=== Initializing Test Setup ===");
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
         testUser.setUsername("testuser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("password");
+        testUser.setName("Test User");
+        // testUser.setEmail("test@example.com");
+                
 
         testContact = new Contact();
         testContact.setId(1L);
@@ -128,7 +138,7 @@ public class ContactServiceTest {
     void deleteContact_Success() {
         // Arrange
         Long contactId = 1L;
-        Long userId = 1L;
+        String userId = "some-random-id";
 
         // No need for doNothing for void methods; focus on interaction verification
 
@@ -137,7 +147,7 @@ public class ContactServiceTest {
 
         // Assert: Verify interactions with mocks
         verify(contactRepository, times(1)).deleteById(contactId);
-        verify(activityLogService, times(1)).logActivity(eq(userId), eq("DELETE"), eq(userId), anyString());
+        verify(activityLogService, times(1)).logActivity(eq(userId), eq("DELETE"),  anyString());
     }
 
     @Test
@@ -223,7 +233,8 @@ public class ContactServiceTest {
     void existsByPhoneAndUserId_Success() {
         System.out.println("\n=== Testing Exists By Phone And User ID ===");
         String phone = "1234567890";
-        Long userId = 1L;
+        String userId = "some-random-id";
+
 
         System.out.println("Configuring mock repository to return true for existence check");
         when(contactRepository.existsByPhoneAndUserId(phone, userId)).thenReturn(true);
@@ -240,7 +251,8 @@ public class ContactServiceTest {
     void existsByIdAndUserId_Success() {
         System.out.println("\n=== Testing Exists By ID And User ID ===");
         Long id = 1L;
-        Long userId = 1L;
+        String userId = "some-random-id";
+
 
         System.out.println("Configuring mock repository to return true for existence check");
         when(contactRepository.existsByIdAndUserId(id, userId)).thenReturn(true);
