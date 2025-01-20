@@ -7,7 +7,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,9 +44,15 @@ public class Contact {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @JsonIgnore // Prevent recursive serialization
-    @ManyToOne(cascade = CascadeType.ALL)
-    // @JoinColumn(name = "user_id", nullable = false)
+    // @JsonIgnore // Prevent recursive serialization
+    // @ManyToOne(cascade = CascadeType.ALL)
+    // // @JoinColumn(name = "user_id", nullable = false)
+    // @JoinColumn(name = "user_id", nullable = false, columnDefinition =
+    // "VARCHAR(255)")
+    // private User user;
+
+    @JsonIgnore 
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, columnDefinition = "VARCHAR(255)")
     private User user;
 

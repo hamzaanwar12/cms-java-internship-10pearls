@@ -1,6 +1,7 @@
 package com.recky.demo.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -34,13 +35,17 @@ public class ActivityLogService {
                 throw new IllegalArgumentException("userId cannot be null");
             }
 
-            User user = userService.getUserByIdOrThrow(userId);
-            if (user == null) {
+            // Retrieve the user using Optional and handle absence
+            Optional <User> userOpt = userService.getUserById(userId);
+
+            if (userOpt.isEmpty()) {
                 logger.error("User not found with userId: {}", userId);
-                throw new IllegalArgumentException("User not found with userId: " + userId);
+                // throw new IllegalArgumentException("User not found with userId: " + userId);
             }
+            User user = userOpt.get();
             logger.info("User found with userId: {}", userId);
 
+            // Validate and parse action
             ActivityLog.Action actionEnum;
             try {
                 actionEnum = ActivityLog.Action.valueOf(action.toUpperCase());
@@ -49,9 +54,11 @@ public class ActivityLogService {
                 throw new IllegalArgumentException("Invalid action provided: " + action, e);
             }
 
+            // Create and save activity log
             ActivityLog activityLog = new ActivityLog(user, actionEnum, details);
             ActivityLog savedLog = activityLogRepository.save(activityLog);
 
+            // Map to DTO and return
             return mapToDTO(savedLog);
         } catch (Exception e) {
             logger.error("Error logging activity for userId: {}, action: {}, details: {}", userId, action, details, e);

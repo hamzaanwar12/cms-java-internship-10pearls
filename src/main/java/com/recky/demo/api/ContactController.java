@@ -161,18 +161,10 @@ public class ContactController {
             // Log the incoming request details
             logger.info("Received delete request for contact ID: {} by user ID: {}", id, userId);
 
-            // Check if the contact exists
-            if (!contactService.existsById(id)) {
-                logger.warn("Contact with ID: {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error", "Contact not found", null));
-            }
-
             // Perform the deletion
             contactService.deleteContact(id,userId);
-            // logger.info("Contact with ID: {} deleted successfully", id);
 
-            // // Log the activity
+            // logger.info("Contact with ID: {} deleted successfully", id);
             // activityLogService.logActivity(userId, "DELETE", userId, "Deleted contact with ID: " + id);
             // logger.info("Activity log for delete action recorded.");
 

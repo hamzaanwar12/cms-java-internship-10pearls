@@ -83,20 +83,28 @@ public class ContactService {
         return contactRepository.findAll();
     }
 
-    // Delete a contact
-    @Transactional
     public void deleteContact(Long contactId, String userId) {
-        // Perform the deletion logic first
-        contactRepository.deleteById(contactId);
+        logger.debug("Deleting contact for userId: {} and contactId: {}", userId, contactId);
 
-        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
-        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
-        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
-        logger.info("Deleted contact with User ID: " + userId + " and Contact ID: " + contactId + "\n");
+        if (userId == null || contactId == null) {
+            logger.error("Invalid userId or contactId: userId={}, contactId={}", userId, contactId);
+            throw new IllegalArgumentException("userId and contactId must not be null");
+        }
 
-        // Log the activity
-        // activityLogService.logActivity(userId, "DELETE", userId, "Deleted contact with ID: " + contactId);
-        activityLogService.logActivity(userId, "DELETE", "Deleted contact with ID: " + contactId);
+        Optional<Contact> contactOpt = contactRepository.findByUserIdAndId(userId, contactId);
+
+        if (contactOpt.isEmpty()) {
+            logger.warn("No contact found for userId: {} and contactId: {}", userId, contactId);
+            throw new RuntimeException("Contact not found for the specified userId and contactId");
+        }
+        logger.info("contact found for userId: {} and contactId: {}", userId, contactId);
+        
+        Contact contact = contactOpt.get();
+        contactRepository.delete(contact);
+
+        logger.info("Deleted contact with userId: {} and contactId: {}", userId, contactId);
+        activityLogService.logActivity(userId, "DELETE",
+                "Deleted contact with ID: " + contactId + " belonging to user: " + userId);
     }
 
     // Get all contacts for a user, filtering based on optional criteria (email or
