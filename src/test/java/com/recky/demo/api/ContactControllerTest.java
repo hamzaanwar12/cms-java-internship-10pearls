@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,11 +54,11 @@ class ContactControllerTest {
 
         // Initialize test user
         testUser = new User();
-        testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
+        testUser.setId(userId); // Manually set UUID
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
-        testUser.setPassword("password");
-        testUser.setName("Test User");
+        // testUser.setPassword("password");
+        // testUser.setName("Test User");
 
         // Initialize test contact
         testContact = new Contact();

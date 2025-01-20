@@ -46,8 +46,8 @@ public class UserServiceTest {
         testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
-        testUser.setPassword("password");
-        testUser.setName("Test User");
+        // testUser.setPassword("password");
+        // testUser.setName("Test User");
         testUser.setRole(User.Role.USER);
         
         System.out.println("Created test user with ID: " + testUser.getId() +

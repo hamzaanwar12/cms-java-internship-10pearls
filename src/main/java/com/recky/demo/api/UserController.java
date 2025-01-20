@@ -66,8 +66,8 @@ public class UserController {
                 existingUser.setEmail(user.getEmail());
             if (user.getRole() != null)
                 existingUser.setRole(user.getRole());
-            if (user.getPassword() != null)
-                existingUser.setPassword(user.getPassword());
+            // if (user.getPassword() != null)
+            //     existingUser.setPassword(user.getPassword());
 
             User updatedUser = userService.saveUser(existingUser);
             UserDTO userDTO = toUserDTO(updatedUser);
@@ -281,7 +281,7 @@ public class UserController {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getName(), // Assuming User has a 'getName()' method
+                // user.getName(), // Assuming User has a 'getName()' method
                 user.getRole().toString(),
                 user.getStatus() != null ? user.getStatus().toString() : "ACTIVE", // Assuming status is an Enum or
                                                                                    // String

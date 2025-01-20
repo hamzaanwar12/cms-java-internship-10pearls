@@ -46,8 +46,8 @@ class UserControllerTest {
                 testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
                 testUser.setUsername("testuser");
                 testUser.setEmail("test@example.com");
-                testUser.setPassword("password");
-                testUser.setName("Test User");
+                // testUser.setPassword("password");
+                // testUser.setName("Test User");
                 System.out.println("Test setup completed");
         }
 

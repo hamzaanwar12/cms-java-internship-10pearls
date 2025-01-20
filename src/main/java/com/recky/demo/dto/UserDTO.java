@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 public class UserDTO {
     // private Long id;
-    private String id; 
+    private String id;
     private String username;
     private String email;
-    private String name;
+
     private String role;
     private String status;
     private LocalDateTime createdAt;
@@ -17,13 +17,18 @@ public class UserDTO {
     private int contactCount;
 
     // Constructors
-    public UserDTO(String id, String username, String email, String name, String role, String status,
+    // public UserDTO(String id, String username, String email, String name, String
+    // role, String status,
+    // LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime
+    // deactivatedAt, String deactivatedBy,
+    // int contactCount)
+    public UserDTO(String id, String username, String email, String role, String status,
             LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deactivatedAt, String deactivatedBy,
             int contactCount) {
         this.id = id;
         this.username = username;
         this.email = email;
-        this.name = name;
+
         this.role = role;
         this.status = status;
         this.createdAt = createdAt;
@@ -33,13 +38,12 @@ public class UserDTO {
         this.contactCount = contactCount;
     }
 
-    //empty constructor:
+    // empty constructor:
     public UserDTO() {
         // Initialize fields with default values if necessary
         this.id = null;
         this.username = null;
         this.email = null;
-        this.name = null;
         this.role = null;
         this.status = null;
         this.createdAt = null;
@@ -48,7 +52,6 @@ public class UserDTO {
         this.deactivatedBy = null;
         this.contactCount = 0;
     }
-
 
     // Getters and Setters
     public String getId() {
@@ -73,14 +76,6 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getRole() {
@@ -145,7 +140,7 @@ public class UserDTO {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", name='" + name + '\'' +
+                // ", name='" + name + '\'' +
                 ", role='" + role + '\'' +
                 ", status='" + status + '\'' +
                 ", createdAt=" + createdAt +

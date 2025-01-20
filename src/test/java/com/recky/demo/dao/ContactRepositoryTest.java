@@ -3,7 +3,6 @@ package com.recky.demo.dao;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,6 +28,7 @@ public class ContactRepositoryTest {
 
     private Contact testContact;
     private User testUser;
+    private String userId = "some-random-id";
 
     @BeforeEach
     void setUp() {
@@ -44,11 +44,12 @@ public class ContactRepositoryTest {
 
 
         testUser = new User();
-        testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
+        // testUser.setId(UUID.randomUUID().toString()); // Manually set UUID
+        testUser.setId(userId); // Manually set UUID
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
-        testUser.setPassword("password");
-        testUser.setName("Test User");
+        // testUser.setPassword("password");
+        // testUser.setName("Test User");
 
         testUser = entityManager.persist(testUser);
 
