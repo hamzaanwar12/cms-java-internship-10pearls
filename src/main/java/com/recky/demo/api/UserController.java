@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.recky.demo.dto.UserDTO;
 import com.recky.demo.model.User;
+import com.recky.demo.service.ActivityLogService;
 import com.recky.demo.service.UserService;
 import com.recky.demo.util.ApiResponse;
-
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,6 +31,9 @@ import com.recky.demo.util.ApiResponse;
 public class UserController {
 
     private final UserService userService;
+
+    @Autowired
+    private ActivityLogService activityLogService; // Inject ActivityLogService
 
     @Autowired
     public UserController(UserService userService) {
@@ -67,7 +71,7 @@ public class UserController {
             if (user.getRole() != null)
                 existingUser.setRole(user.getRole());
             // if (user.getPassword() != null)
-            //     existingUser.setPassword(user.getPassword());
+            // existingUser.setPassword(user.getPassword());
 
             User updatedUser = userService.saveUser(existingUser);
             UserDTO userDTO = toUserDTO(updatedUser);
@@ -290,6 +294,45 @@ public class UserController {
                 user.getDeactivatedAt(),
                 user.getDeactivatedBy(),
                 user.getContacts() != null ? user.getContacts().size() : 0);
+    }
+
+    // Some Extra after testing:
+    @GetMapping("/{userId}/paginated-users")
+    public ResponseEntity<ApiResponse<Page<UserDTO>>> getPaginatedUsersByUserId(
+            @PathVariable String userId,
+            Pageable pageable) {
+
+        try {
+            // Fetch users with pagination
+            // Page<User> userPage = userService.getUsersByUserIdPaginated(userId, pageable);
+            Page<User> userPage = userService.getAllPageUsers(pageable);
+
+            // Log activity
+            activityLogService.logActivity(userId, "GET", "Fetched paginated users for userId: " + userId);
+
+            // Map to DTO
+            Page<UserDTO> userDTOPage = userPage.map(this::toUserDTO);
+
+            // Build API response
+            ApiResponse<Page<UserDTO>> response = new ApiResponse<>(
+                    HttpStatus.OK.value(),
+                    "success",
+                    "Users fetched successfully",
+                    userDTOPage,
+                    userDTOPage.getTotalPages(),
+                    userDTOPage.getNumber(),
+                    (int) userDTOPage.getTotalElements());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<Page<UserDTO>> response = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "error",
+                    "An error occurred while fetching users",
+                    null);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 }

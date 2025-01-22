@@ -57,11 +57,18 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     boolean existsByPhoneAndUserId(String phone, String userID);
 
+    Optional<Contact> findByPhoneAndUserId(String phone, String userID);
+
+
     // Custom query to check if a contact exists with the given id and user id
     boolean existsByIdAndUserId(Long id, String userID);
 
-
     @Query("SELECT c FROM Contact c WHERE c.user.id = :userId AND c.id = :contactId")
     Optional<Contact> findByUserIdAndContactId(@Param("userId") String userID, @Param("contactId") Long contactId);
+
+    // some new ones
+ 
+    // Fetch all contacts paginated (for ADMIN users)
+    Page<Contact> findAll(Pageable pageable);
 
 }

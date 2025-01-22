@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.recky.demo.dao.ContactRepository;
+import com.recky.demo.dto.ContactDTO;
 import com.recky.demo.model.Contact;
 
 import jakarta.transaction.Transactional;
@@ -98,7 +99,7 @@ public class ContactService {
             throw new RuntimeException("Contact not found for the specified userId and contactId");
         }
         logger.info("contact found for userId: {} and contactId: {}", userId, contactId);
-        
+
         Contact contact = contactOpt.get();
         contactRepository.delete(contact);
 
@@ -153,12 +154,36 @@ public class ContactService {
         return contactRepository.existsByPhoneAndUserId(phone, userId);
     }
 
+    public Optional<Contact> getContactByPhoneAndUserId(String phone, String userId) {
+        return contactRepository.findByPhoneAndUserId(phone, userId);
+    }
+
     public boolean existsByIdAndUserId(Long id, String userId) {
         return contactRepository.existsByIdAndUserId(id, userId);
     }
 
     public boolean existsById(Long id) {
         return contactRepository.existsById(id);
+    }
+
+    // Some new chnages
+    // Get all contacts paginated for ADMIN users
+    // public Page<Contact> getAllContactsPaginated(Pageable pageable) {
+    // return contactRepository.findAll(pageable);
+    // }
+
+    public Page<ContactDTO> getAllContactsPaginated(Pageable pageable) {
+        // Fetch paginated contacts and map them to ContactDTO
+        return contactRepository.findAll(pageable)
+                .map(contact -> new ContactDTO(
+                        contact.getId(),
+                        contact.getUser() != null ? contact.getUser().getId() : null, // Map userId
+                        contact.getName(),
+                        contact.getPhone(),
+                        contact.getEmail(),
+                        contact.getAddress(),
+                        contact.getCreatedAt(),
+                        contact.getUpdatedAt()));
     }
 
 }

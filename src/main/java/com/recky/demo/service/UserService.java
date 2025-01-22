@@ -1,5 +1,6 @@
 package com.recky.demo.service;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.recky.demo.dao.UserRepository;
@@ -67,4 +69,15 @@ public class UserService {
                     return new UserNotFoundException("User with ID " + userId + " not found");
                 });
     }
+
+    //some after end
+    public Page<User> getUsersByUserIdPaginated(String userId, Pageable pageable) {
+        return userRepository.findById(userId, pageable);
+    }
+
+    public Page<User> getAllPageUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+   
+    
 }

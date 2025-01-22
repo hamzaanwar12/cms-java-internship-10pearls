@@ -7,7 +7,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.recky.demo.dao.ActivityLogRepository;
 import com.recky.demo.dto.ActivityLogDTO;
@@ -19,6 +23,7 @@ import com.recky.demo.model.User;
 public class ActivityLogService {
 
     private final ActivityLogRepository activityLogRepository;
+
     private final UserService userService;
 
     private static final Logger logger = LoggerFactory.getLogger(ActivityLogService.class);
@@ -36,7 +41,7 @@ public class ActivityLogService {
             }
 
             // Retrieve the user using Optional and handle absence
-            Optional <User> userOpt = userService.getUserById(userId);
+            Optional<User> userOpt = userService.getUserById(userId);
 
             if (userOpt.isEmpty()) {
                 logger.error("User not found with userId: {}", userId);
@@ -89,4 +94,43 @@ public class ActivityLogService {
                 activityLog.getTimestamp(),
                 activityLog.getDetails());
     }
+
+    // Some new and untested methods
+
+    public Optional<ActivityLogDTO> getActivityById(String userId, Long id) {
+        Optional<ActivityLog> activityLogOpt = activityLogRepository.findById(id);
+
+        // Check if activity exists and belongs to the user
+        if (activityLogOpt.isEmpty() || !activityLogOpt.get().getUser().getId().equals(userId)) {
+            return Optional.empty();
+        }
+
+        return activityLogOpt.map(this::mapToDTO);
+    }
+
+    public Page<ActivityLogDTO> getPaginatedLogsByUserId(String userId, Pageable pageable) {
+        // Fetch paginated logs from the repository
+        Page<ActivityLog> logs = activityLogRepository.findByUserId(userId, pageable);
+
+        // Map the ActivityLog entities to ActivityLogDTO
+        Page<ActivityLogDTO> logDTOs = logs.map(this::mapToDTO);
+
+        return logDTOs;
+    }
+
+    public Page<ActivityLogDTO> getAdminLogsByUserId(String userId, Pageable pageable) {
+        Optional<User> userOpt = userService.getUserById(userId);
+        if (userOpt.isEmpty() || !userOpt.get().getRole().equals(User.Role.ADMIN)) {
+            throw new IllegalArgumentException("Unauthorized access: User is not an admin");
+        }
+
+        // Fetch paginated admin logs
+        Page<ActivityLog> logs = activityLogRepository.findAll(pageable);
+
+        // Map the ActivityLog entities to ActivityLogDTO
+        Page<ActivityLogDTO> logDTOs = logs.map(this::mapToDTO);
+
+        return logDTOs;
+    }
+
 }
