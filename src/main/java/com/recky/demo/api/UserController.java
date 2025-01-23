@@ -1,6 +1,7 @@
 package com.recky.demo.api;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,8 @@ public class UserController {
 
             User updatedUser = userService.saveUser(existingUser);
             UserDTO userDTO = toUserDTO(updatedUser);
-            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.OK.value(), "success",
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.OK.value(),
+                    "success",
                     "User updated successfully", userDTO);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -304,7 +306,8 @@ public class UserController {
 
         try {
             // Fetch users with pagination
-            // Page<User> userPage = userService.getUsersByUserIdPaginated(userId, pageable);
+            // Page<User> userPage = userService.getUsersByUserIdPaginated(userId,
+            // pageable);
             Page<User> userPage = userService.getAllPageUsers(pageable);
 
             // Log activity
@@ -331,6 +334,130 @@ public class UserController {
                     "An error occurred while fetching users",
                     null);
 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update-user/{id}/{performedId}")
+    public ResponseEntity<ApiResponse<UserDTO>> NewupdateUser(
+            @PathVariable String id,
+            @PathVariable String performedId,
+            @RequestBody User user) {
+        try {
+            // Fetch the existing user
+            User existingUser = userService.getUserById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            User existingPerformerUser = userService.getUserById(performedId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Update only allowed fields
+            if (user.getEmail() != null) {
+                // Check if the email is already used by another user
+                Optional<User> conflictingUser = userService.getUserByEmail(user.getEmail());
+                if (conflictingUser.isPresent() && !conflictingUser.get().getId().equals(id)) {
+                    activityLogService.logActivity(performedId, "UPDATE",
+                            "Conflict on " + id + "update : Email " + user.getEmail()
+                                    + " is already used by another user");
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body(new ApiResponse<>(HttpStatus.CONFLICT.value(), "error",
+                                    "Email is already in use by another user", null));
+                }
+                existingUser.setEmail(user.getEmail());
+            }
+
+            if (user.getUsername() != null) {
+                // Check if the username is already used by another user
+                Optional<User> conflictingUser = userService.getUserByUsername(user.getUsername());
+                if (conflictingUser.isPresent() && !conflictingUser.get().getId().equals(id)) {
+                    activityLogService.logActivity(performedId, "UPDATE",
+                            "Conflict on " + id + "Username update " + user.getUsername()
+                                    + " is already used by another user");
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body(new ApiResponse<>(HttpStatus.CONFLICT.value(), "error",
+                                    "Username is already in use by another user", null));
+                }
+                existingUser.setUsername(user.getUsername());
+            }
+
+            if (user.getStatus() != null) {
+                existingUser.setStatus(user.getStatus());
+            }
+
+            // Save the updated user
+            User updatedUser = userService.saveUser(existingUser);
+
+            // Convert to DTO and prepare the response
+            UserDTO userDTO = toUserDTO(updatedUser);
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.OK.value(), "success",
+                    "User updated successfully", userDTO);
+
+            // Log successful update
+            activityLogService.logActivity(performedId, "UPDATE", "Successfully updated user with ID: " + id);
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            // Log activity for user not found
+            activityLogService.logActivity(id, "UPDATE", "Attempted to update non-existent user with ID: " + id);
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error",
+                    "User not found", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            // Log activity for unexpected errors
+            activityLogService.logActivity(id, "UPDATE",
+                    "An error occurred while updating user with ID: " + id + ". Error: " + e.getMessage());
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "error",
+                    "An error occurred while updating user", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @DeleteMapping("/delete-user/{id}/{performedId}")
+    public ResponseEntity<ApiResponse<UserDTO>> deleteUser(
+            @PathVariable String id,
+            @PathVariable String performedId) {
+        try {
+            // Check if the user performing the action exists
+            User performingUser = userService.getUserById(performedId)
+                    .orElseThrow(() -> new RuntimeException("Performing user not found"));
+
+            // Check if the user to be deleted exists
+            User userToDelete = userService.getUserById(id)
+                    .orElseThrow(() -> new RuntimeException("User to delete not found"));
+
+            // Convert the user to DTO before deletion for returning in the response
+            UserDTO userDTO = toUserDTO(userToDelete);
+
+            // Perform the deletion
+            userService.deleteUser(id);
+
+            // Log successful deletion activity
+            activityLogService.logActivity(performedId, "DELETE",
+                    "Successfully deleted user with ID: " + id);
+
+            // Return a success response with the deleted user details
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.OK.value(), "success",
+                    "User deleted successfully", userDTO);
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            // Log activity for user not found or other runtime issues
+            activityLogService.logActivity(performedId, "DELETE",
+                    "Failed to delete user with ID: " + id + ". Reason: " + e.getMessage());
+
+            // Return a not found response
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "error",
+                    e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        } catch (Exception e) {
+            // Log activity for unexpected errors
+            activityLogService.logActivity(performedId, "DELETE",
+                    "An error occurred while deleting user with ID: " + id + ". Error: " + e.getMessage());
+
+            // Return an internal server error response
+            ApiResponse<UserDTO> response = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "error",
+                    "An error occurred while deleting user", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
