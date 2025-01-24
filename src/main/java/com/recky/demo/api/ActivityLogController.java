@@ -1,8 +1,11 @@
 package com.recky.demo.api;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.Optional;
 
 import com.recky.demo.dto.ActivityLogDTO;
 import com.recky.demo.dto.ActivityLogRequest;
+import com.recky.demo.dto.ActivityLogStatsDTO;
 import com.recky.demo.service.ActivityLogService;
 import com.recky.demo.util.ApiResponse;
 
@@ -25,6 +26,7 @@ import com.recky.demo.util.ApiResponse;
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
+    
 
     @Autowired
     public ActivityLogController(ActivityLogService activityLogService) {
@@ -160,6 +162,32 @@ public class ActivityLogController {
                     .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "error",
                             "An error occurred while retrieving admin logs", null));
         }
+    }
+
+    @GetMapping("/get-user-logs-stats/{userId}")
+    public ResponseEntity<ApiResponse<ActivityLogStatsDTO>> getUserLogStats(
+            @PathVariable String userId) {
+        ActivityLogStatsDTO stats = activityLogService.getUserLogStats(userId);
+        activityLogService.logActivity(userId, "GET", "Accessed user activity log statistics");
+
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "success",
+                "User log statistics retrieved successfully",
+                stats));
+    }
+
+    @GetMapping("/get-all-logs-stats/{userId}")
+    public ResponseEntity<ApiResponse<ActivityLogStatsDTO>> getAllLogsStats(
+            @PathVariable String userId) {
+        ActivityLogStatsDTO stats = activityLogService.getAllLogsStats();
+        activityLogService.logActivity(userId, "GET", "Accessed all activity log statistics");
+
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "success",
+                "All log statistics retrieved successfully",
+                stats));
     }
 
 }

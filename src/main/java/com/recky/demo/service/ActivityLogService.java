@@ -1,20 +1,20 @@
 package com.recky.demo.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import com.recky.demo.dao.ActivityLogRepository;
 import com.recky.demo.dto.ActivityLogDTO;
+import com.recky.demo.dto.ActivityLogStatsDTO;
 import com.recky.demo.model.ActivityLog;
 import com.recky.demo.model.ActivityLog.Action;
 import com.recky.demo.model.User;
@@ -131,6 +131,61 @@ public class ActivityLogService {
         Page<ActivityLogDTO> logDTOs = logs.map(this::mapToDTO);
 
         return logDTOs;
+    }
+
+
+
+    public ActivityLogStatsDTO getUserLogStats(String userId) {
+        // Validate user exists
+        if (userService.getUserById(userId).isEmpty()) {
+            throw new IllegalArgumentException("User not found with userId: " + userId);
+        }
+
+        // Retrieve logs for the specific user
+        List<ActivityLog> userLogs = activityLogRepository.findByUserId(userId);
+
+        // Group logs by action and count
+        Map<ActivityLog.Action, Long> actionCounts = userLogs.stream()
+            .collect(Collectors.groupingBy(
+                ActivityLog::getAction, 
+                Collectors.counting()
+            ));
+
+        // Calculate total logs
+        long totalLogs = userLogs.size();
+
+        // Create and return stats DTO
+        return new ActivityLogStatsDTO(
+            actionCounts.getOrDefault(ActivityLog.Action.GET, 0L),
+            actionCounts.getOrDefault(ActivityLog.Action.CREATE, 0L),
+            actionCounts.getOrDefault(ActivityLog.Action.UPDATE, 0L),
+            actionCounts.getOrDefault(ActivityLog.Action.DELETE, 0L),
+            totalLogs
+        );
+    }
+
+    public ActivityLogStatsDTO getAllLogsStats() {
+        // Retrieve all logs
+        List<ActivityLog> allLogs = activityLogRepository.findAll();
+
+        // Group logs by action and count
+        Map <ActivityLog.Action, Long> actionCounts = allLogs.stream()
+            .collect(Collectors.groupingBy(
+                ActivityLog::getAction, 
+                Collectors.counting()
+            ));
+
+        // Calculate total logs
+        long totalLogs = allLogs.size();
+
+        // Create and return stats DTO
+        return new ActivityLogStatsDTO(
+            actionCounts.getOrDefault(ActivityLog.Action.GET, 0L),
+            actionCounts.getOrDefault(ActivityLog.Action.CREATE, 0L),
+            actionCounts.getOrDefault(ActivityLog.Action.UPDATE, 0L),
+            actionCounts.getOrDefault(ActivityLog.Action.DELETE, 0L),
+            totalLogs
+        );
     }
 
 }
