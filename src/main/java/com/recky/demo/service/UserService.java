@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.recky.demo.dao.UserRepository;
+import com.recky.demo.dto.UserStatsDTO;
 import com.recky.demo.exception.UserNotFoundException;
 import com.recky.demo.model.User;
 
@@ -79,5 +80,13 @@ public class UserService {
         return userRepository.findAll(pageable);
     }
    
+
+    public UserStatsDTO getUserStatistics() {
+        long totalUsers = userRepository.count();
+        long adminUsers = userRepository.countByRole(User.Role.ADMIN);
+        long nonAdminUsers = userRepository.countNonAdminUsers();
+    
+        return new UserStatsDTO(totalUsers, adminUsers, nonAdminUsers);
+    }
     
 }

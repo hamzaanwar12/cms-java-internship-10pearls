@@ -21,10 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.recky.demo.dto.UserDTO;
+import com.recky.demo.dto.UserStatsDTO;
+import com.recky.demo.exception.UserNotFoundException;
 import com.recky.demo.model.User;
 import com.recky.demo.service.ActivityLogService;
 import com.recky.demo.service.UserService;
 import com.recky.demo.util.ApiResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/users")
@@ -40,6 +45,8 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     // Create a user
     @PostMapping("/create")
@@ -461,5 +468,46 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
+    @GetMapping("/get-stats/{userId}") 
+    public ResponseEntity<ApiResponse<UserStatsDTO>> getUserStatistics(@PathVariable String userId) { 
+        try { 
+            // Log the incoming request details 
+            logger.info("Fetching user statistics for userId: {}", userId); 
+     
+            // Fetch the user 
+            User user = userService.getUserByIdOrThrow(userId); 
+     
+            // Log the user's role 
+            logger.info("User role: {}", user.getRole()); 
+     
+            // Check admin role using the enum 
+            if (user.getRole() == null || user.getRole() != User.Role.ADMIN) { 
+                logger.warn("Access denied: User {} is not an admin", userId); 
+                return ResponseEntity.status(HttpStatus.FORBIDDEN) 
+                        .body(new ApiResponse<>(HttpStatus.FORBIDDEN.value(), "error", 
+                                "Access denied", null)); 
+            } 
+     
+            // Fetch user statistics 
+            UserStatsDTO userStats = userService.getUserStatistics(); 
+     
+            // Log the activity 
+            activityLogService.logActivity(userId, "GET", "Fetched user statistics"); 
+     
+            // Return the response 
+            return ResponseEntity.ok( 
+                    new ApiResponse<>( 
+                            HttpStatus.OK.value(), 
+                            "success", 
+                            "User statistics fetched successfully", 
+                            userStats)); 
+        } catch (Exception e) { 
+            // Log the full exception details 
+            logger.error("Error fetching user statistics for userId: {}", userId, e); 
+     
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR) 
+                    .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", 
+                            "An error occurred while fetching user statistics: " + e.getMessage(), null)); 
+        } 
+    }
 }
